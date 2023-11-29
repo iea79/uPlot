@@ -1440,14 +1440,18 @@ var uPlot = (function () {
 	function numAxisSplits(self, axisIdx, scaleMin, scaleMax, foundIncr, foundSpace, forceMin) {
 		let splits = [];
 
-		let numDec = fixedDec.get(foundIncr) || 0;
+		if (foundIncr !== 1e-16) {
 
-		scaleMin = forceMin ? scaleMin : roundDec(incrRoundUp(scaleMin, foundIncr), numDec);
+			let numDec = fixedDec.get(foundIncr) || 0;
 
-		for (let val = scaleMin; val <= scaleMax; val = roundDec(val + foundIncr, numDec))
-			splits.push(Object.is(val, -0) ? 0 : val);		// coalesces -0
-
+			scaleMin = forceMin ? scaleMin : roundDec(incrRoundUp(scaleMin, foundIncr), numDec);
+		
+			for (let val = scaleMin; val <= scaleMax; val = roundDec(val + foundIncr, numDec))
+				splits?.push(Object.is(val, -0) ? 0 : val);		// coalesces -0
+		
+		}
 		return splits;
+
 	}
 
 	// this doesnt work for sin, which needs to come off from 0 independently in pos and neg dirs

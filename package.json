@@ -7,6 +7,7 @@
   "typings": "./dist/uPlot.d.ts",
   "scripts": {
     "build": "rollup -c --bundleConfigAsCjs",
+    "watch": "rollup -c -w --bundleConfigAsCjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
