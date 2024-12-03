@@ -6,8 +6,8 @@ export function monotoneCubic(opts) {
 
 // Monotone Cubic Spline interpolation, adapted from the Chartist.js implementation:
 // https://github.com/gionkunz/chartist-js/blob/e7e78201bffe9609915e5e53cfafa29a5d6c49f9/src/scripts/interpolation.js#L240-L369
-function _monotoneCubic(xs, ys, moveTo, lineTo, bezierCurveTo, pxRound) {
-	const n = xs.length;
+function _monotoneCubic(xs, ys, moveTo, lineTo, bezierCurveTo, pxRound, smooth = 3) {
+	const n = xs.length;	
 
 	if (n < 2)
 		return null;
@@ -39,7 +39,7 @@ function _monotoneCubic(xs, ys, moveTo, lineTo, bezierCurveTo, pxRound) {
 			if (ds[i] === 0 || ds[i - 1] === 0 || (ds[i - 1] > 0) !== (ds[i] > 0))
 				ms[i] = 0;
 			else {
-				ms[i] = 3 * (dxs[i - 1] + dxs[i]) / (
+				ms[i] = smooth * (dxs[i - 1] + dxs[i]) / (
 					(2 * dxs[i] + dxs[i - 1]) / ds[i - 1] +
 					(dxs[i] + 2 * dxs[i - 1]) / ds[i]
 				);
@@ -54,10 +54,10 @@ function _monotoneCubic(xs, ys, moveTo, lineTo, bezierCurveTo, pxRound) {
 		for (let i = 0; i < n - 1; i++) {
 			bezierCurveTo(
 				path,
-				xs[i] + dxs[i] / 3,
-				ys[i] + ms[i] * dxs[i] / 3,
-				xs[i + 1] - dxs[i] / 3,
-				ys[i + 1] - ms[i + 1] * dxs[i] / 3,
+				xs[i] + dxs[i] / smooth,
+				ys[i] + ms[i] * dxs[i] / smooth,
+				xs[i + 1] - dxs[i] / smooth,
+				ys[i + 1] - ms[i + 1] * dxs[i] / smooth,
 				xs[i + 1],
 				ys[i + 1],
 			);

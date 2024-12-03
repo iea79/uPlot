@@ -2,7 +2,11 @@ import { ifNull, nonNullIdx } from '../utils';
 import { orient, clipGaps, moveToH, moveToV, lineToH, lineToV, bezierCurveToH, bezierCurveToV, clipBandLine, BAND_CLIP_FILL, bandFillClipDirs, findGaps } from './utils';
 
 export function splineInterp(interp, opts) {
-	const alignGaps = ifNull(opts?.alignGaps, 0);
+	// console.log('splineInterp');
+	// console.log(interp, opts);
+
+	const alignGaps = ifNull(opts?.alignGaps, 0);	
+	const smooth = ifNull(opts?.smooth, 0);	
 
 	return (u, seriesIdx, idx0, idx1) => {
 		return orient(u, seriesIdx, (series, dataX, dataY, scaleX, scaleY, valToPosX, valToPosY, xOff, yOff, xDim, yDim) => {
@@ -47,7 +51,10 @@ export function splineInterp(interp, opts) {
 				}
 			}
 
-			const _paths = {stroke: interp(xCoords, yCoords, moveTo, lineTo, bezierCurveTo, pxRound), fill: null, clip: null, band: null, gaps: null, flags: BAND_CLIP_FILL};
+			// console.log('pxRound', pxRound);
+
+
+			const _paths = {stroke: interp(xCoords, yCoords, moveTo, lineTo, bezierCurveTo, pxRound, smooth), fill: null, clip: null, band: null, gaps: null, flags: BAND_CLIP_FILL};
 			const stroke = _paths.stroke;
 
 			let [ bandFillDir, bandClipDir ] = bandFillClipDirs(u, seriesIdx);

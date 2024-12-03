@@ -4,7 +4,7 @@ import { pxRatio } from '../dom';
 
 // BUG: align: -1 behaves like align: 1 when scale.dir: -1
 export function stepped(opts) {
-	const align = ifNull(opts.align, 1);
+	const align = ifNull(opts.align, 0);
 	// whether to draw ascenders/descenders at null/gap bondaries
 	const ascDesc = ifNull(opts.ascDesc, false);
 	const alignGaps = ifNull(opts.alignGaps, 0);
@@ -40,7 +40,9 @@ export function stepped(opts) {
 				lineTo(stroke, firstXPosExt, prevYPos);
 			}
 
-			lineTo(stroke, firstXPos, prevYPos);
+			if (align !== 0) {
+				lineTo(stroke, firstXPos, prevYPos);
+			}
 
 			for (let i = dir == 1 ? idx0 : idx1; i >= idx0 && i <= idx1; i += dir) {
 				let yVal1 = dataY[i];
@@ -50,14 +52,28 @@ export function stepped(opts) {
 
 				let x1 = pixelForX(dataX[i]);
 				let y1 = pixelForY(yVal1);
+				let xRange = Math.round(Math.abs(x1 - prevXPos) / 2);
+				
+				if (align === 0) {
+					if (i > 0) {
+						lineTo(stroke, prevXPos, prevYPos);
+						lineTo(stroke, prevXPos + xRange, prevYPos);
+						lineTo(stroke, prevXPos + xRange, y1);
+					}
+					if (i === dataX.length - 1) {
+						lineTo(stroke, x1, y1);
+					}
+				} else {
+					if (align === 1) {
+						lineTo(stroke, x1, prevYPos);
+					} 
+					if (align === -1) {
+						lineTo(stroke, prevXPos, y1);
+					}
 
-				if (align == 1)
-					lineTo(stroke, x1, prevYPos);
-				else
-					lineTo(stroke, prevXPos, y1);
-
-				lineTo(stroke, x1, y1);
-
+					lineTo(stroke, x1, y1);
+				}
+				
 				prevYPos = y1;
 				prevXPos = x1;
 			}

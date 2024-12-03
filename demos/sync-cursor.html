@@ -91,7 +91,7 @@
 
 				syncBtn.onclick = () => {
 					synced = !synced;
-
+					
 					if (synced) {
 						mooSync.sub(uplot1);
 						mooSync.sub(uplot2);
@@ -104,6 +104,8 @@
 						mooSync.unsub(uplot3);
 						syncBtn.textContent = 'Enable Sync';
 					}
+					
+					console.log(mooSync);
 				};
 
 				let syncedUpDown = true;
@@ -125,17 +127,17 @@
 				const matchSyncKeys = (own, ext) => own == ext;
 
 				const cursorOpts = {
-					lock: true,
+					// lock: true,
 					focus: {
 						prox: 16,
 					},
 					sync: {
 						key: mooSync.key,
-						setSeries: true,
-						match: [matchSyncKeys, matchSyncKeys],
-						filters: {
-							pub: upDownFilter,
-						}
+						// setSeries: false,
+						// match: [matchSyncKeys, matchSyncKeys],
+						// filters: {
+						// 	pub: upDownFilter,
+						// }
 					},
 				};
 
@@ -279,6 +281,8 @@
 						return null;
 
 					const pubSeriesLabel = pub.series[pubSeriesIdx].label;
+
+					console.log(sub, pub);
 
 					return sub.series.findIndex(s => s.label == pubSeriesLabel);
 				};

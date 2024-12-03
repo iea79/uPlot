@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2023, Leon Sorokin
+* Copyright (c) 2024, Leon Sorokin
 * All rights reserved. (MIT Licensed)
 *
 * uPlot.js (μPlot)
@@ -167,7 +167,7 @@ function on(ev, el, cb, capt) {
 }
 
 function off(ev, el, cb, capt) {
-	el.removeEventListener(ev, cb, capt ? evOpts2 : evOpts);
+	el.removeEventListener(ev, cb, evOpts);
 }
 
 domEnv && setPxRatio();
@@ -2198,7 +2198,7 @@ function linear(opts) {
 
 // BUG: align: -1 behaves like align: 1 when scale.dir: -1
 function stepped(opts) {
-	const align = ifNull(opts.align, 1);
+	const align = ifNull(opts.align, 0);
 	// whether to draw ascenders/descenders at null/gap bondaries
 	const ascDesc = ifNull(opts.ascDesc, false);
 	const alignGaps = ifNull(opts.alignGaps, 0);
@@ -2234,7 +2234,9 @@ function stepped(opts) {
 				lineTo(stroke, firstXPosExt, prevYPos);
 			}
 
-			lineTo(stroke, firstXPos, prevYPos);
+			if (align !== 0) {
+				lineTo(stroke, firstXPos, prevYPos);
+			}
 
 			for (let i = dir == 1 ? idx0 : idx1; i >= idx0 && i <= idx1; i += dir) {
 				let yVal1 = dataY[i];
@@ -2244,14 +2246,28 @@ function stepped(opts) {
 
 				let x1 = pixelForX(dataX[i]);
 				let y1 = pixelForY(yVal1);
+				let xRange = Math.round(Math.abs(x1 - prevXPos) / 2);
+				
+				if (align === 0) {
+					if (i > 0) {
+						lineTo(stroke, prevXPos, prevYPos);
+						lineTo(stroke, prevXPos + xRange, prevYPos);
+						lineTo(stroke, prevXPos + xRange, y1);
+					}
+					if (i === dataX.length - 1) {
+						lineTo(stroke, x1, y1);
+					}
+				} else {
+					if (align === 1) {
+						lineTo(stroke, x1, prevYPos);
+					} 
+					if (align === -1) {
+						lineTo(stroke, prevXPos, y1);
+					}
 
-				if (align == 1)
-					lineTo(stroke, x1, prevYPos);
-				else
-					lineTo(stroke, prevXPos, y1);
-
-				lineTo(stroke, x1, y1);
-
+					lineTo(stroke, x1, y1);
+				}
+				
 				prevYPos = y1;
 				prevXPos = x1;
 			}
@@ -2580,7 +2596,11 @@ function bars(opts) {
 }
 
 function splineInterp(interp, opts) {
-	const alignGaps = ifNull(opts?.alignGaps, 0);
+	// console.log('splineInterp');
+	// console.log(interp, opts);
+
+	const alignGaps = ifNull(opts?.alignGaps, 0);	
+	const smooth = ifNull(opts?.smooth, 0);	
 
 	return (u, seriesIdx, idx0, idx1) => {
 		return orient(u, seriesIdx, (series, dataX, dataY, scaleX, scaleY, valToPosX, valToPosY, xOff, yOff, xDim, yDim) => {
@@ -2625,7 +2645,10 @@ function splineInterp(interp, opts) {
 				}
 			}
 
-			const _paths = {stroke: interp(xCoords, yCoords, moveTo, lineTo, bezierCurveTo, pxRound), fill: null, clip: null, band: null, gaps: null, flags: BAND_CLIP_FILL};
+			// console.log('pxRound', pxRound);
+
+
+			const _paths = {stroke: interp(xCoords, yCoords, moveTo, lineTo, bezierCurveTo, pxRound, smooth), fill: null, clip: null, band: null, gaps: null, flags: BAND_CLIP_FILL};
 			const stroke = _paths.stroke;
 
 			let [ bandFillDir, bandClipDir ] = bandFillClipDirs(u, seriesIdx);
@@ -2685,8 +2708,8 @@ function monotoneCubic(opts) {
 
 // Monotone Cubic Spline interpolation, adapted from the Chartist.js implementation:
 // https://github.com/gionkunz/chartist-js/blob/e7e78201bffe9609915e5e53cfafa29a5d6c49f9/src/scripts/interpolation.js#L240-L369
-function _monotoneCubic(xs, ys, moveTo, lineTo, bezierCurveTo, pxRound) {
-	const n = xs.length;
+function _monotoneCubic(xs, ys, moveTo, lineTo, bezierCurveTo, pxRound, smooth = 3) {
+	const n = xs.length;	
 
 	if (n < 2)
 		return null;
@@ -2718,7 +2741,7 @@ function _monotoneCubic(xs, ys, moveTo, lineTo, bezierCurveTo, pxRound) {
 			if (ds[i] === 0 || ds[i - 1] === 0 || (ds[i - 1] > 0) !== (ds[i] > 0))
 				ms[i] = 0;
 			else {
-				ms[i] = 3 * (dxs[i - 1] + dxs[i]) / (
+				ms[i] = smooth * (dxs[i - 1] + dxs[i]) / (
 					(2 * dxs[i] + dxs[i - 1]) / ds[i - 1] +
 					(dxs[i] + 2 * dxs[i - 1]) / ds[i]
 				);
@@ -2733,10 +2756,10 @@ function _monotoneCubic(xs, ys, moveTo, lineTo, bezierCurveTo, pxRound) {
 		for (let i = 0; i < n - 1; i++) {
 			bezierCurveTo(
 				path,
-				xs[i] + dxs[i] / 3,
-				ys[i] + ms[i] * dxs[i] / 3,
-				xs[i + 1] - dxs[i] / 3,
-				ys[i + 1] - ms[i + 1] * dxs[i] / 3,
+				xs[i] + dxs[i] / smooth,
+				ys[i] + ms[i] * dxs[i] / smooth,
+				xs[i + 1] - dxs[i] / smooth,
+				ys[i + 1] - ms[i + 1] * dxs[i] / smooth,
 				xs[i + 1],
 				ys[i + 1],
 			);
