@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2024, Leon Sorokin
+* Copyright (c) 2025, Leon Sorokin
 * All rights reserved. (MIT Licensed)
 *
 * uPlot.js (μPlot)
@@ -2237,9 +2237,9 @@ var uPlot = (function () {
 					lineTo(stroke, firstXPosExt, prevYPos);
 				}
 
-				// if (align !== 0) {
+				if (align !== 0) {
 					lineTo(stroke, firstXPos, prevYPos);
-				// }
+				}
 
 				for (let i = dir == 1 ? idx0 : idx1; i >= idx0 && i <= idx1; i += dir) {
 					let yVal1 = dataY[i];
@@ -2249,32 +2249,30 @@ var uPlot = (function () {
 
 					let x1 = pixelForX(dataX[i]);
 					let y1 = pixelForY(yVal1);
-					let xRange = Math.abs(x1 - prevXPos) / 2;
-
-					if (align === 1) {
-						lineTo(stroke, x1, prevYPos);
-					} 
-					if (align === 0) {
-						// console.log('');
-						// console.log(x1);
-						console.log(xRange, x1, prevXPos);
-						lineTo(stroke, x1 - xRange, y1);
-					}
-					if (align === -1) {
-						lineTo(stroke, prevXPos, y1);
-					}
+					let xRange = Math.round(Math.abs(x1 - prevXPos) / 2);
 					
 					if (align === 0) {
-						lineTo(stroke, x1 + xRange, y1);
+						if (i > 0) {
+							lineTo(stroke, prevXPos, prevYPos);
+							lineTo(stroke, prevXPos + xRange, prevYPos);
+							lineTo(stroke, prevXPos + xRange, y1);
+						}
+						if (i === dataX.length - 1) {
+							lineTo(stroke, x1, y1);
+						}
 					} else {
+						if (align === 1) {
+							lineTo(stroke, x1, prevYPos);
+						} 
+						if (align === -1) {
+							lineTo(stroke, prevXPos, y1);
+						}
+
 						lineTo(stroke, x1, y1);
 					}
-
+					
 					prevYPos = y1;
 					prevXPos = x1;
-					// if (align === 0) {
-					// 	prevXPos = x1 - xRange;
-					// }
 				}
 
 				let prevXPosExt = prevXPos;
@@ -3814,7 +3812,7 @@ var uPlot = (function () {
 		}
 
 		function accScale(wsc, psc, facet, data, sorted = 0) {
-			if (data.length > 0 && wsc.auto(self, viaAutoScaleX) && (psc == null || psc.min == null)) {
+			if (data?.length > 0 && wsc.auto(self, viaAutoScaleX) && (psc == null || psc.min == null)) {
 				let _i0 = ifNull(i0, 0);
 				let _i1 = ifNull(i1, data.length - 1);
 

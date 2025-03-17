@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2024, Leon Sorokin
+* Copyright (c) 2025, Leon Sorokin
 * All rights reserved. (MIT Licensed)
 *
 * uPlot.js (μPlot)
@@ -3811,7 +3811,7 @@ function uPlot(opts, data, then) {
 	}
 
 	function accScale(wsc, psc, facet, data, sorted = 0) {
-		if (data.length > 0 && wsc.auto(self, viaAutoScaleX) && (psc == null || psc.min == null)) {
+		if (data?.length > 0 && wsc.auto(self, viaAutoScaleX) && (psc == null || psc.min == null)) {
 			let _i0 = ifNull(i0, 0);
 			let _i1 = ifNull(i1, data.length - 1);
 

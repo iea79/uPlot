@@ -1244,7 +1244,7 @@ export default function uPlot(opts, data, then) {
 	}
 
 	function accScale(wsc, psc, facet, data, sorted = 0) {
-		if (data.length > 0 && wsc.auto(self, viaAutoScaleX) && (psc == null || psc.min == null)) {
+		if (data?.length > 0 && wsc.auto(self, viaAutoScaleX) && (psc == null || psc.min == null)) {
 			let _i0 = ifNull(i0, 0);
 			let _i1 = ifNull(i1, data.length - 1);
 
