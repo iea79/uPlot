@@ -1425,6 +1425,7 @@ export default function uPlot(opts, data, then) {
 
 	// grabs the nearest indices with y data outside of x-scale limits
 	function getOuterIdxs(ydata) {
+		if (!ydata) return;
 		let _i0 = clamp(i0 - 1, 0, dataLen - 1);
 		let _i1 = clamp(i1 + 1, 0, dataLen - 1);
 
@@ -1446,7 +1447,7 @@ export default function uPlot(opts, data, then) {
 
 					if (s._paths == null) {
 						let _idxs = mode == 2 ? [0, data[i][0].length - 1] : getOuterIdxs(data[i]);
-						s._paths = s.paths(self, i, _idxs[0], _idxs[1]);
+						s._paths = _idxs ? s.paths(self, i, _idxs[0], _idxs[1]) : null;						
 					}
 				}
 			});
